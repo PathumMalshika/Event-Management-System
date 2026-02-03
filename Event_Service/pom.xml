@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.EventManagementSystem</groupId>
-	<artifactId>Authentication_Service</artifactId>
+	<artifactId>Event_Service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Authentication_Service</name>
+	<name>Event_Service</name>
 	<description>Event Management System project for Spring Boot</description>
 	<url/>
 	<licenses>

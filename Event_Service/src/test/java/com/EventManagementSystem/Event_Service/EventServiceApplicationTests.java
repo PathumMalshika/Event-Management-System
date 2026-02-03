@@ -1,10 +1,10 @@
-package com.EventManagementSystem.Authentication_Service;
+package com.EventManagementSystem.Event_Service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthenticationServiceApplicationTests {
+class EventServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
