@@ -14,15 +14,29 @@ public class NotificationService {
     @Autowired
     private NotificationRepository repository;
 
-    //create notification
-    public Notification create (Notification notification){
+    public Notification create(Notification notification) {
         notification.setRead(false);
         notification.setCreatedAt(LocalDateTime.now());
         return repository.save(notification);
     }
 
-    //view notification
-    public List<Notification> getByUser(Long userId){
+    public List<Notification> getAll() {
+        return repository.findAll();
+    }
+
+    public List<Notification> getByUser(Long userId) {
         return repository.findByUserId(userId);
     }
+
+    public Notification markAsRead(Long id) {
+        Notification n = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        n.setRead(true);
+        return repository.save(n);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
 }
+
