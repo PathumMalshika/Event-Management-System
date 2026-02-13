@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class EventServiceImpl implements EventService{
@@ -31,5 +32,52 @@ public class EventServiceImpl implements EventService{
     @Override
     public void deleteEventById(Long eventId) {
         eventRepository.deleteById(eventId);
+    }
+
+    @Override
+    public Event updateEvent(Long eventId, Event event) {
+        Event eveDB = eventRepository.findById(eventId).get();
+
+                if(Objects.nonNull(event.getTitle()) &&
+                !"".equalsIgnoreCase(event.getTitle())) {
+                    eveDB.setTitle(event.getTitle());
+                }
+
+                if(Objects.nonNull(event.getTitle()) &&
+                        !"".equalsIgnoreCase(event.getTitle())) {
+                    eveDB.setTitle(event.getTitle());
+                }
+
+                        if(Objects.nonNull(event.getDescription()) &&
+                                !"".equalsIgnoreCase(event.getDescription())) {
+                            eveDB.setDescription(event.getDescription());
+                        }
+
+                            if(Objects.nonNull(event.getLocation()) &&
+                                    !"".equalsIgnoreCase(event.getLocation())) {
+                                eveDB.setLocation(event.getLocation());
+                            }
+
+                                if(Objects.nonNull(event.getStartDate()) &&
+                                        !"".equalsIgnoreCase(String.valueOf(event.getStartDate()))) {
+                                    eveDB.setStartDate(event.getStartDate());
+                                }
+
+                                    if(Objects.nonNull(event.getEndDate()) &&
+                                            !"".equalsIgnoreCase(String.valueOf(event.getEndDate()))) {
+                                        eveDB.setEndDate(event.getEndDate());
+                                    }
+
+                                        if(Objects.nonNull(event.getCapacity()) &&
+                                                !"".equalsIgnoreCase(String.valueOf(event.getCapacity()))) {
+                                            eveDB.setCapacity(event.getCapacity());
+                                        }
+
+                                            if(Objects.nonNull(event.getPrice()) &&
+                                                    !"".equalsIgnoreCase(String.valueOf(event.getPrice()))) {
+                                                eveDB.setPrice(event.getPrice());
+                                            }
+
+                                                return eventRepository.save(eveDB);
     }
 }
