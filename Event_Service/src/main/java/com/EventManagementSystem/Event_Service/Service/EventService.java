@@ -10,4 +10,6 @@ public interface EventService {
    public List<Event> fetchEventList();
 
    public Event fetchEventById(Long eventId);
+
+   public void deleteEventById(Long eventId);
 }
