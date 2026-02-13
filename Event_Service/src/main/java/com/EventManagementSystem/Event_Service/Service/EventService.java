@@ -8,4 +8,6 @@ public interface EventService {
    public Event saveEvent(Event event);
 
    public List<Event> fetchEventList();
+
+   public Event fetchEventById(Long eventId);
 }

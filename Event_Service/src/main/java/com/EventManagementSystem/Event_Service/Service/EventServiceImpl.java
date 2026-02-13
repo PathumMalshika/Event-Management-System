@@ -22,4 +22,9 @@ public class EventServiceImpl implements EventService{
     public List<Event> fetchEventList() {
         return eventRepository.findAll();
     }
+
+    @Override
+    public Event fetchEventById(Long eventId) {
+        return eventRepository.findById(eventId).get();
+    }
 }
