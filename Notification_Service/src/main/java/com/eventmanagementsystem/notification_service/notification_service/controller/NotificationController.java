@@ -32,7 +32,7 @@ public class NotificationController {
         return service.getByUser(userId);
     }
 
-    @PutMapping("/{id}/read")
+    @PutMapping("/{id}")
     public Notification markAsRead(@PathVariable Long id) {
         return service.markAsRead(id);
     }
