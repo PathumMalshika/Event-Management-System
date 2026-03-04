@@ -2,7 +2,6 @@ package com.EventManagementSystem.User_Service.controller;
 
 import com.EventManagementSystem.User_Service.entity.User;
 import com.EventManagementSystem.User_Service.service.UserService;
-import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
