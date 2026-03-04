@@ -1,7 +1,10 @@
 package com.feedback_service.repository;
 
-import com.feedback_service.model.feedback;
+import com.feedback_service.model.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface FeedbackRepository extends JpaRepository<feedback, Long> {
+@Repository
+public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
+
 }
