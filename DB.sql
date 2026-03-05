@@ -1,0 +1,22 @@
+CREATE DATABASE venue_db;
+
+USE venue_db;
+SHOW TABLES;
+USE venue_db;
+SHOW TABLES;
+DROP DATABASE venue_db;
+CREATE DATABASE venue_db;
+SHOW TABLES;
+USE venue_db;
+SHOW TABLES;
+DROP DATABASE venue_db;
+
+ALTER TABLE venue ADD COLUMN date DATE;
+
+ALTER TABLE venue ADD COLUMN is_available BOOLEAN DEFAULT TRUE;
+SHOW TABLES;
+
+
+
+
+

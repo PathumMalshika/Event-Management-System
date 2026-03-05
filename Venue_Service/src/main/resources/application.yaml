@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: Venue_Service
+
+  datasource:
+    # ඔබේ දත්ත සමුදායේ නම (venue_db) නිවැරදි දැයි පරීක්ෂා කරන්න
+    url: jdbc:mysql://localhost:3306/venue_db
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 'update' මඟින් Entity එකේ අලුතින් එක් කළ date සහ isAvailable ක්ෂේත්‍ර database එකට එක් කරයි
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # MySQL 8 හෝ ඉහළ සංස්කරණ සඳහා සුදුසු Dialect එක
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  # Frontend එක සමඟ සම්බන්ධ වීමේදී භාවිතා වන port එක
+  port: 8081

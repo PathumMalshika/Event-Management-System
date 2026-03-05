@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+@theme {
+  /* Inter font එක theme එකට එකතු කිරීම */
+  --font-inter: "Inter", sans-serif;
+  
+  /* අමතර indigo වර්ණ අවශ්‍ය නම් මෙහිදී custom කළ හැක */
+  --color-brand-primary: var(--color-indigo-600);
+}
+
+/* මූලික සැකසුම් */
+body {
+  font-family: var(--font-inter);
+  @apply bg-slate-50 text-gray-800 antialiased; 
+}
+
+/* සියලුම elements සඳහා සුමට සංක්‍රාන්ති (transitions) */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Scrollbar එක නවීන පෙනුමකට සකස් කිරීම */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Button එකක් click කරන විට කුඩා වන effect එක */
+button:active {
+  transform: scale(0.95);
+}
+
+/* Table rows සඳහා hover effect එක */
+tr {
+  transition: background-color 0.2s ease;
+}
+
+/* Input fields focus වන විට ලැබෙන පෙනුම */
+input:focus {
+  @apply ring-2 ring-indigo-500 ring-offset-1 outline-none;
+}
+
+/* Table එකේ Header එක සඳහා අමතර styling */
+thead th {
+  @apply tracking-wider;
+}
