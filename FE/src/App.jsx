@@ -14,7 +14,7 @@ function App() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  // දත්ත ලබා ගැනීම
+ 
   const loadVenues = () => {
     axios.get(BASE_URL)
       .then(res => setVenues(res.data))
@@ -25,7 +25,7 @@ function App() {
     loadVenues();
   }, []);
 
-  // Form එක Submit කිරීම (Add හෝ Update)
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingId) {
@@ -47,7 +47,7 @@ function App() {
     }
   };
 
-  // Edit කිරීම සඳහා දත්ත Form එකට ගැනීම
+  
   const handleEdit = (v) => {
     setEditingId(v.id);
     setFormData({ 
@@ -59,14 +59,14 @@ function App() {
     });
   };
 
-  // මකා දැමීම
+  
   const handleDelete = (id) => {
     if (window.confirm("Delete this venue?")) {
       axios.delete(`${BASE_URL}/${id}`).then(() => loadVenues());
     }
   };
 
-  // Form එක මුල් තත්වයට පත් කිරීම
+  
   const resetForm = () => {
     setFormData({ name: "", location: "", capacity: "", date: "", isAvailable: true });
     setEditingId(null);
@@ -81,7 +81,7 @@ function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
-          {/* Form Section - වම්පස */}
+          
           <div className="lg:col-span-4">
             <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-2xl border border-indigo-50 sticky top-10">
               <h2 className="text-2xl font-bold mb-6 text-indigo-900">
@@ -113,7 +113,7 @@ function App() {
                   required
                 />
                 
-                {/* Date Input */}
+                
                 <input
                   type="date"
                   className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
@@ -122,7 +122,7 @@ function App() {
                   required
                 />
 
-                {/* Availability Checkbox */}
+               
                 <div className="flex items-center gap-3 p-2 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                   <input
                     type="checkbox"
@@ -159,7 +159,7 @@ function App() {
             </form>
           </div>
 
-          {/* Table Section - දකුණුපස */}
+          
           <div className="lg:col-span-8">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
               <table className="w-full text-left">
