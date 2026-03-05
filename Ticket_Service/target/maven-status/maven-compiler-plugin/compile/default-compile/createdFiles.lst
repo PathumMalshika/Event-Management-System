@@ -1,0 +1,6 @@
+com\eventmanagementsystem\ticket_service\controller\TicketController.class
+com\eventmanagementsystem\ticket_service\repository\TicketRepository.class
+com\eventmanagementsystem\ticket_service\entity\Ticket.class
+com\eventmanagementsystem\ticket_service\TicketServiceApplication.class
+com\eventmanagementsystem\ticket_service\service\TicketServiceImpl.class
+com\eventmanagementsystem\ticket_service\service\TicketService.class
