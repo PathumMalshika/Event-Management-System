@@ -1,6 +1,7 @@
 package com.EventManagementSystem.Event_Service.Controller;
 
 import com.EventManagementSystem.Event_Service.Entity.Event;
+import com.EventManagementSystem.Event_Service.ErrorHandling.EventNotFoundException;
 import com.EventManagementSystem.Event_Service.Service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class EventController {
     }
 
     @GetMapping("/events/{id}")
-    public Event fetchEventById(@PathVariable("id") Long eventId){
+    public Event fetchEventById(@PathVariable("id") Long eventId) throws EventNotFoundException {
 
         return eventService.fetchEventById(eventId);
     }
