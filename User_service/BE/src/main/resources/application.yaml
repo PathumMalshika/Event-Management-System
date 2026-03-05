@@ -17,5 +17,4 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        # Dialect එක manually දානවා නම් මෙහෙම දාන්න (නැත්නම් මේ line එක අයින් කරන්න)
         dialect: org.hibernate.dialect.MySQLDialect
