@@ -12,14 +12,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/venues")
-@CrossOrigin(origins = "http://localhost:5174")
+@CrossOrigin(origins = "http://localhost:5173")
 public class VenueController {
 
     @Autowired
     private VenueService venueService;
 
     @PostMapping
-    public ResponseEntity<String> addVenue(@RequestBody Venue venue) {
+    public ResponseEntity<String> addVenue(@Valid @RequestBody Venue venue) {
         venueService.addVenue(venue);
         return new ResponseEntity<>("Venue added successfully", HttpStatus.CREATED);
     }

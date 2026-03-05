@@ -5,16 +5,16 @@ const BASE_URL = "http://localhost:8081/api/venues";
 
 function App() {
   const [venues, setVenues] = useState([]);
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    location: "", 
+  const [formData, setFormData] = useState({
+    name: "",
+    location: "",
     capacity: "",
-    date: "", 
-    isAvailable: true 
+    date: "",
+    isAvailable: true
   });
   const [editingId, setEditingId] = useState(null);
 
- 
+
   const loadVenues = () => {
     axios.get(BASE_URL)
       .then(res => setVenues(res.data))
@@ -25,13 +25,13 @@ function App() {
     loadVenues();
   }, []);
 
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingId) {
       axios.put(`${BASE_URL}/${editingId}`, formData)
         .then(() => {
-          alert("Venue Updated! ✅");
+          alert("Venue Updated!");
           resetForm();
           loadVenues();
         })
@@ -39,7 +39,7 @@ function App() {
     } else {
       axios.post(BASE_URL, formData)
         .then(() => {
-          alert("Venue Added! 🏢");
+          alert("Venue Added!");
           resetForm();
           loadVenues();
         })
@@ -47,26 +47,26 @@ function App() {
     }
   };
 
-  
+
   const handleEdit = (v) => {
     setEditingId(v.id);
-    setFormData({ 
-      name: v.name, 
-      location: v.location, 
+    setFormData({
+      name: v.name,
+      location: v.location,
       capacity: v.capacity,
       date: v.date || "",
       isAvailable: v.isAvailable ?? true
     });
   };
 
-  
+
   const handleDelete = (id) => {
     if (window.confirm("Delete this venue?")) {
       axios.delete(`${BASE_URL}/${id}`).then(() => loadVenues());
     }
   };
 
-  
+
   const resetForm = () => {
     setFormData({ name: "", location: "", capacity: "", date: "", isAvailable: true });
     setEditingId(null);
@@ -76,18 +76,22 @@ function App() {
     <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-black text-center text-indigo-950 mb-12 uppercase tracking-tighter">
-          Venue Management Center 🏛️
+          Venue Management Center
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          
-          
+
           <div className="lg:col-span-4">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-2xl border border-indigo-50 sticky top-10">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-8 rounded-3xl shadow-2xl border border-indigo-50 sticky top-10"
+            >
               <h2 className="text-2xl font-bold mb-6 text-indigo-900">
-                {editingId ? "Update Venue 📝" : "Add New Venue ➕"}
+                {editingId ? "Update Venue" : "Add New Venue ➕"}
               </h2>
+
               <div className="space-y-5">
+                {/* Venue Name */}
                 <input
                   type="text"
                   placeholder="Venue Name"
@@ -96,6 +100,8 @@ function App() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
+
+                {/* Location */}
                 <input
                   type="text"
                   placeholder="Location"
@@ -104,16 +110,23 @@ function App() {
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
                 />
+
+                {/* Capacity */}
                 <input
                   type="number"
                   placeholder="Capacity"
                   className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
                   value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      capacity: e.target.value === "" ? "" : parseInt(e.target.value),
+                    })
+                  }
                   required
                 />
-                
-                
+
+                {/* Date */}
                 <input
                   type="date"
                   className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
@@ -122,32 +135,40 @@ function App() {
                   required
                 />
 
-               
+                {/* Availability */}
                 <div className="flex items-center gap-3 p-2 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                   <input
                     type="checkbox"
                     id="available"
                     className="w-6 h-6 accent-indigo-600 rounded-lg cursor-pointer"
                     checked={formData.isAvailable}
-                    onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isAvailable: e.target.checked })
+                    }
                   />
-                  <label htmlFor="available" className="text-gray-700 font-bold cursor-pointer select-none">
+                  <label
+                    htmlFor="available"
+                    className="text-gray-700 font-bold cursor-pointer select-none"
+                  >
                     Currently Available
                   </label>
                 </div>
-                
+
+                {/* Buttons */}
                 <div className="flex gap-2 pt-2">
-                  <button 
-                    type="submit" 
-                    className={`flex-1 py-4 rounded-2xl font-bold text-white shadow-lg active:scale-95 transition-all ${
-                      editingId ? "bg-amber-500 hover:bg-amber-600 shadow-amber-200" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
-                    }`}
+                  <button
+                    type="submit"
+                    className={`flex-1 py-4 rounded-2xl font-bold text-white shadow-lg active:scale-95 transition-all ${editingId
+                        ? "bg-amber-500 hover:bg-amber-600 shadow-amber-200"
+                        : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
+                      }`}
                   >
                     {editingId ? "Update Details" : "Save Venue"}
                   </button>
+
                   {editingId && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={resetForm}
                       className="px-6 bg-gray-200 text-gray-600 rounded-2xl font-bold hover:bg-gray-300 transition-all"
                     >
@@ -159,7 +180,7 @@ function App() {
             </form>
           </div>
 
-          
+
           <div className="lg:col-span-8">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
               <table className="w-full text-left">
@@ -186,7 +207,7 @@ function App() {
                             {v.capacity} PAX
                           </span>
                           <div className="text-gray-600 text-sm font-medium flex items-center gap-1">
-                            📅 {v.date || "Not set"}
+                            {v.date || "Not set"}
                           </div>
                         </div>
                       </td>
@@ -205,13 +226,13 @@ function App() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex justify-center gap-3">
-                          <button 
+                          <button
                             onClick={() => handleEdit(v)}
                             className="bg-amber-50 text-amber-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-amber-100 transition-all active:scale-90"
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(v.id)}
                             className="bg-rose-50 text-rose-500 px-4 py-2 rounded-xl text-sm font-bold hover:bg-rose-100 transition-all active:scale-90"
                           >

@@ -12,47 +12,29 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 public class Venue {
 
-    // Getters and Setters
-    @Setter
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Name cannot be blank")
-    @Size(max = 100, message = "Name cannot exceed 100 characters")
+    @Size(max = 100)
     private String name;
 
-    @Getter
     @NotBlank(message = "Location cannot be blank")
-    @Size(max = 200, message = "Location cannot exceed 200 characters")
+    @Size(max = 200)
     private String location;
 
     private int capacity;
 
-    @NotNull(message = "Date is required")
+    @NotNull
     private LocalDate date;
 
     private boolean isAvailable;
 
-    // Default Constructor
     public Venue() {}
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public void setLocation(String location) { this.location = location; }
-
-    public int getCapacity() { return capacity; }
-    public void setCapacity(int capacity) { this.capacity = capacity; }
-
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
-
-
-    public boolean isAvailable() { return isAvailable; }
-    public void setAvailable(boolean available) { this.isAvailable = available; }
 }
