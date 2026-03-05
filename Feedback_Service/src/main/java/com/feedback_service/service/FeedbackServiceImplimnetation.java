@@ -3,13 +3,19 @@ package com.feedback_service.service;
 import com.feedback_service.model.Feedback;
 import com.feedback_service.repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class FeedbackServiceImplimnetation implements Feedbackservice{
 
 
-    private FeedbackRepository feedbackRepository;
+    private final FeedbackRepository feedbackRepository;
+
+    public FeedbackServiceImplimnetation(FeedbackRepository feedbackRepository) {
+        this.feedbackRepository = feedbackRepository;
+    }
 
     @Override
     public Feedback saveFeedback(Feedback feedback) {

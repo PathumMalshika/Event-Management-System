@@ -4,6 +4,7 @@ import com.feedback_service.model.Feedback;
 
 import com.feedback_service.repository.FeedbackRepository;
 import com.feedback_service.service.Feedbackservice;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +13,9 @@ import java.util.List;
 @RequestMapping("/feedback")
 public class FeedbackController {
 
+    @Autowired
     private  Feedbackservice feedbackService;
+
 
 
 
@@ -39,5 +42,11 @@ public class FeedbackController {
     @GetMapping("/user/{userId}")
     public List<Feedback> getFeedbackByUser(@PathVariable Long userId) {
         return feedbackService.getFeedbackByUserId(userId);
+    }
+
+    @PutMapping("/update")
+    public Feedback updateFeedback(@RequestBody Feedback feedback) {
+
+        return feedbackService.UpdateFeedback(feedback);
     }
 }
