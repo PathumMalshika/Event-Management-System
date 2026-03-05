@@ -14,10 +14,9 @@ public class VenueServiceImpl implements VenueService {
     @Autowired
     private VenueRepository venueRepository;
 
-    // නව Venue එකක් ඇතුළත් කිරීම
     @Override
     public void addVenue(Venue venue) {
-        venueRepository.save(venue); // මෙහිදී Entity එකේ ඇති date සහ isAvailable ඇතුළු සියලු දත්ත ගබඩා වේ
+        venueRepository.save(venue);
     }
 
     @Override
@@ -31,11 +30,10 @@ public class VenueServiceImpl implements VenueService {
         return venueRepository.findAll();
     }
 
-    // පවතින Venue එකක දත්ත යාවත්කාලීන කිරීම
     @Override
     public void updateVenue(Long id, Venue venue) {
         if (venueRepository.existsById(id)) {
-            venue.setId(id); // ලැබෙන නව දත්ත (date, isAvailable ඇතුළුව) පවතින ID එකට අදාළව ගබඩා වේ
+            venue.setId(id);
             venueRepository.save(venue);
         } else {
             throw new RuntimeException("Venue not found");
