@@ -18,11 +18,14 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
+
     @Override
     public User saveUser(User user) {
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword("123456");
+        }
         return userRepository.save(user);
     }
-
     @Override
     public List<User> fetchUserList() {
         return userRepository.findAll();
@@ -30,7 +33,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User fetchUserById(Long userId) {
-        return userRepository.findById(userId).get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     @Override
