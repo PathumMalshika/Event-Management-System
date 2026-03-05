@@ -1,6 +1,7 @@
 package com.feedback_service.service;
 
 import com.feedback_service.model.Feedback;
+import org.springframework.stereotype.Repository;
 
 
 import java.util.List;
