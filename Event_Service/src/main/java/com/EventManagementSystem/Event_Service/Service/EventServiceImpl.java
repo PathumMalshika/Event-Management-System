@@ -1,12 +1,14 @@
 package com.EventManagementSystem.Event_Service.Service;
 
 import com.EventManagementSystem.Event_Service.Entity.Event;
+import com.EventManagementSystem.Event_Service.ErrorHandling.EventNotFoundException;
 import com.EventManagementSystem.Event_Service.Repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class EventServiceImpl implements EventService{
@@ -25,8 +27,14 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public Event fetchEventById(Long eventId) {
-        return eventRepository.findById(eventId).get();
+    public Event fetchEventById(Long eventId) throws EventNotFoundException {
+        Optional <Event> event = eventRepository.findById(eventId);
+
+        if(!event.isPresent()){
+            throw new EventNotFoundException("Event Not Available");
+        }
+
+        return event.get();
     }
 
     @Override

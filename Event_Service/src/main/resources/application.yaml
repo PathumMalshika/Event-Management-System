@@ -2,19 +2,38 @@ spring:
   application:
     name: Event_Service
 
-  datasource:
-    url: jdbc:h2:mem:Studentdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: pwd
+#  datasource:
+#    url: jdbc:h2:mem:Studentdb
+#    driverClassName: org.h2.Driver
+#    username: sa
+#    password: pwd
+#
+#  jpa:
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    show-sql: true
+#    hibernate:
+#      ddl-auto:update
+#
+#  h2:
+#    console:
+#    enabled: true
+#    path: /h2-console
 
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
-    hibernate:
-      ddl-auto:update
+server:
+  port: 8083
 
-  h2:
-    console:
-    enabled: true
-    path: /h2-console
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+datasource:
+  url: jdbc:mysql://localhost:3306/eventdb
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  username: root
+  password: pathum123
+
+jpa:
+  show-sql: true
+  hibernate:
+    ddl-auto: update
