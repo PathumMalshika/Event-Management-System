@@ -1,9 +1,24 @@
+import { useEffect, useState } from "react";
 import { SvcHeader, ConfirmDialog } from "../../components/common/SvcHeader";
 import { statusBadge } from "../../utils/helpers";
 import Icons from "../../utils/icons";
-import { uid } from "../../data/mockData";
+import { ticketService } from "../../services/ticketService";
 
 export default function TicketsPage({ data, setData, addToast, openModal, closeModal, searchQ }) {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    ticketService.getAll()
+      .then(tickets => {
+        setData(d => ({ ...d, tickets }));
+        setLoading(false);
+      })
+      .catch(() => {
+        addToast("Failed to load tickets from server. Showing local data.", "error");
+        setLoading(false);
+      });
+  }, []);
+
   const tickets = data.tickets.filter(t =>
     t.event.toLowerCase().includes(searchQ.toLowerCase()) ||
     t.type.toLowerCase().includes(searchQ.toLowerCase())
@@ -12,7 +27,16 @@ export default function TicketsPage({ data, setData, addToast, openModal, closeM
   const deleteTicket = (id) => openModal({
     content: (
       <ConfirmDialog title="Delete Ticket Type" body="This ticket type will be permanently removed." icon="🎟️"
-        onConfirm={() => { setData(d => ({ ...d, tickets: d.tickets.filter(t => t.id !== id) })); addToast("Ticket deleted.", "info"); closeModal(); }}
+        onConfirm={async () => {
+          try {
+            await ticketService.remove(id);
+            setData(d => ({ ...d, tickets: d.tickets.filter(t => t.id !== id) }));
+            addToast("Ticket deleted.", "info");
+          } catch {
+            addToast("Failed to delete ticket.", "error");
+          }
+          closeModal();
+        }}
         onCancel={closeModal}
       />
     ),
@@ -23,14 +47,20 @@ export default function TicketsPage({ data, setData, addToast, openModal, closeM
       ? { ...ticket }
       : { event: "", type: "Regular", price: 1000, qty: 100, status: "active" };
 
-    const save = () => {
+    const save = async () => {
       if (!form.event) { addToast("Select an event.", "error"); return; }
-      if (ticket) {
-        setData(d => ({ ...d, tickets: d.tickets.map(t => t.id === ticket.id ? { ...t, ...form } : t) }));
-        addToast("Ticket updated.");
-      } else {
-        setData(d => ({ ...d, tickets: [...d.tickets, { ...form, id: uid(), sold: 0 }] }));
-        addToast("Ticket type created.");
+      try {
+        if (ticket) {
+          const updated = await ticketService.update(ticket.id, form);
+          setData(d => ({ ...d, tickets: d.tickets.map(t => t.id === ticket.id ? updated : t) }));
+          addToast("Ticket updated.");
+        } else {
+          const created = await ticketService.create({ ...form, sold: 0 });
+          setData(d => ({ ...d, tickets: [...d.tickets, created] }));
+          addToast("Ticket type created.");
+        }
+      } catch {
+        addToast("Failed to save ticket.", "error");
       }
       closeModal();
     };
@@ -102,41 +132,48 @@ export default function TicketsPage({ data, setData, addToast, openModal, closeM
 
       <div className="card">
         <div className="card-head"><span className="card-head-title">All Ticket Types ({tickets.length})</span></div>
-        <div className="tbl-scroll">
-          <table className="tbl">
-            <thead><tr><th>Event</th><th>Type</th><th>Price</th><th>Sold / Total</th><th>Revenue</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody>
-              {tickets.map(t => {
-                const pct = Math.round(t.sold / t.qty * 100);
-                return (
-                  <tr key={t.id}>
-                    <td style={{ fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.event}</td>
-                    <td><span className="badge b-violet">{t.type}</span></td>
-                    <td style={{ color: "var(--amber)", fontWeight: 600 }}>Rs {t.price.toLocaleString()}</td>
-                    <td>
-                      <div style={{ minWidth: 80 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: ".7rem", color: "var(--tx2)", marginBottom: 3 }}>
-                          <span>{t.sold}/{t.qty}</span><span>{pct}%</span>
+        {loading ? (
+          <div style={{ padding: "2rem", textAlign: "center", color: "var(--tx2)" }}>Loading tickets...</div>
+        ) : (
+          <div className="tbl-scroll">
+            <table className="tbl">
+              <thead><tr><th>Event</th><th>Type</th><th>Price</th><th>Sold / Total</th><th>Revenue</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                {tickets.map(t => {
+                  const pct = t.qty > 0 ? Math.round(t.sold / t.qty * 100) : 0;
+                  return (
+                    <tr key={t.id}>
+                      <td style={{ fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.event}</td>
+                      <td><span className="badge b-violet">{t.type}</span></td>
+                      <td style={{ color: "var(--amber)", fontWeight: 600 }}>Rs {t.price.toLocaleString()}</td>
+                      <td>
+                        <div style={{ minWidth: 80 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: ".7rem", color: "var(--tx2)", marginBottom: 3 }}>
+                            <span>{t.sold}/{t.qty}</span><span>{pct}%</span>
+                          </div>
+                          <div className="prog-bar">
+                            <div className="prog-fill" style={{ width: `${pct}%`, background: pct >= 100 ? "var(--rose)" : pct > 70 ? "var(--amber)" : "var(--teal)" }} />
+                          </div>
                         </div>
-                        <div className="prog-bar">
-                          <div className="prog-fill" style={{ width: `${pct}%`, background: pct >= 100 ? "var(--rose)" : pct > 70 ? "var(--amber)" : "var(--teal)" }} />
+                      </td>
+                      <td style={{ color: "var(--amber)", fontWeight: 600 }}>Rs {(t.price * t.sold).toLocaleString()}</td>
+                      <td><span className={`badge ${statusBadge(t.status)}`}>{t.status.replace("_", " ")}</span></td>
+                      <td>
+                        <div className="action-btns">
+                          <button className="btn-icon edit" onClick={() => openForm(t)}>{Icons.edit}</button>
+                          <button className="btn-icon del"  onClick={() => deleteTicket(t.id)}>{Icons.trash}</button>
                         </div>
-                      </div>
-                    </td>
-                    <td style={{ color: "var(--amber)", fontWeight: 600 }}>Rs {(t.price * t.sold).toLocaleString()}</td>
-                    <td><span className={`badge ${statusBadge(t.status)}`}>{t.status.replace("_", " ")}</span></td>
-                    <td>
-                      <div className="action-btns">
-                        <button className="btn-icon edit" onClick={() => openForm(t)}>{Icons.edit}</button>
-                        <button className="btn-icon del"  onClick={() => deleteTicket(t.id)}>{Icons.trash}</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {tickets.length === 0 && (
+                  <tr><td colSpan="7" style={{ textAlign: "center", padding: "2rem", color: "var(--tx2)" }}>No tickets found</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </>
   );

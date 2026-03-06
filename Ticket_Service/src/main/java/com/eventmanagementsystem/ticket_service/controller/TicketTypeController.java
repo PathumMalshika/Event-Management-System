@@ -15,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/ticket-types")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class TicketTypeController {
+
     private final TicketTypeService ticketTypeService;
 
     @Autowired
@@ -22,118 +23,68 @@ public class TicketTypeController {
         this.ticketTypeService = ticketTypeService;
     }
 
-    /**
-     * Create a new ticket type (VIP, Regular, etc.)
-     * POST /ticket-types
-     */
     @PostMapping
-    public ResponseEntity<TicketType> createTicketType(@RequestBody TicketType ticketType) {
+    public ResponseEntity<?> createTicketType(@RequestBody TicketType ticketType) {
         try {
-            TicketType createdTicketType = ticketTypeService.createTicketType(ticketType);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdTicketType);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            TicketType created = ticketTypeService.createTicketType(ticketType);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    /**
-     * Get all ticket types
-     * GET /ticket-types
-     */
     @GetMapping
     public ResponseEntity<List<TicketType>> getAllTicketTypes() {
-        List<TicketType> ticketTypes = ticketTypeService.getAllTicketTypes();
-        return ResponseEntity.ok(ticketTypes);
+        return ResponseEntity.ok(ticketTypeService.getAllTicketTypes());
     }
 
-    /**
-     * Get a specific ticket type by ID
-     * GET /ticket-types/{id}
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<TicketType> getTicketTypeById(@PathVariable Long id) {
-        try {
-            return ticketTypeService.getTicketTypeById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<?> getTicketTypeById(@PathVariable Long id) {
+        return ticketTypeService.getTicketTypeById(id)
+                .map(t -> ResponseEntity.ok((Object) t))
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Get all ticket types for a specific event
-     * GET /ticket-types/event/{eventId}
-     */
     @GetMapping("/event/{eventId}")
     public ResponseEntity<List<TicketType>> getTicketTypesByEventId(@PathVariable Long eventId) {
-        try {
-            List<TicketType> ticketTypes = ticketTypeService.getTicketTypesByEventId(eventId);
-            return ResponseEntity.ok(ticketTypes);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(ticketTypeService.getTicketTypesByEventId(eventId));
     }
 
-    /**
-     * Update a complete ticket type (all fields)
-     * PUT /ticket-types/{id}
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<TicketType> updateTicketType(@PathVariable Long id,
-                                                       @RequestBody TicketType ticketType) {
+    public ResponseEntity<?> updateTicketType(@PathVariable Long id,
+                                              @RequestBody TicketType ticketType) {
         try {
-            TicketType updatedTicketType = ticketTypeService.updateTicketType(id, ticketType);
-            return ResponseEntity.ok(updatedTicketType);
+            TicketType updated = ticketTypeService.updateTicketType(id, ticketType);
+            return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    /**
-     * Update only the price of a ticket type
-     * PATCH /ticket-types/{id}/price
-     * Request Body: { "price": 25.99 }
-     */
     @PatchMapping("/{id}/price")
-    public ResponseEntity<TicketType> updatePrice(@PathVariable Long id,
-                                                   @RequestBody Map<String, Double> request) {
+    public ResponseEntity<?> updatePrice(@PathVariable Long id,
+                                         @RequestBody Map<String, Double> request) {
         try {
             Double price = request.get("price");
-            if (price == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            TicketType updatedTicketType = ticketTypeService.updatePrice(id, price);
-            return ResponseEntity.ok(updatedTicketType);
+            if (price == null) return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(ticketTypeService.updatePrice(id, price));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    /**
-     * Update only the quantity of a ticket type
-     * PATCH /ticket-types/{id}/quantity
-     * Request Body: { "quantity": 100 }
-     */
     @PatchMapping("/{id}/quantity")
-    public ResponseEntity<TicketType> updateQuantity(@PathVariable Long id,
-                                                      @RequestBody Map<String, Integer> request) {
+    public ResponseEntity<?> updateQuantity(@PathVariable Long id,
+                                            @RequestBody Map<String, Integer> request) {
         try {
             Integer quantity = request.get("quantity");
-            if (quantity == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            TicketType updatedTicketType = ticketTypeService.updateQuantity(id, quantity);
-            return ResponseEntity.ok(updatedTicketType);
+            if (quantity == null) return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(ticketTypeService.updateQuantity(id, quantity));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    /**
-     * Delete a ticket type
-     * DELETE /ticket-types/{id}
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteTicketType(@PathVariable Long id) {
         try {
@@ -146,4 +97,3 @@ public class TicketTypeController {
         }
     }
 }
-
