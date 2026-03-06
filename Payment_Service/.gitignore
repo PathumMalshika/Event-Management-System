@@ -1,0 +1,5 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Log files generated during development/runtime
+*.log
