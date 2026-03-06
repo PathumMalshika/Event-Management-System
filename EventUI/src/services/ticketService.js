@@ -25,12 +25,12 @@ const toBackend = (t) => ({
 
 export const ticketService = {
   async getAll() {
-    const { data } = await API.get("/");
+    const { data } = await API.get("");
     return data.map(toFrontend);
   },
 
   async create(ticket) {
-    const { data } = await API.post("/", toBackend(ticket));
+    const { data } = await API.post("", toBackend(ticket));
     return toFrontend(data);
   },
 

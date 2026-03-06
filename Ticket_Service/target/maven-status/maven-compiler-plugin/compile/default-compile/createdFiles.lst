@@ -1,5 +1,6 @@
 com\eventmanagementsystem\ticket_service\TicketServiceApplication.class
 com\eventmanagementsystem\ticket_service\controller\TicketTypeController.class
+com\eventmanagementsystem\ticket_service\config\CorsConfig.class
 com\eventmanagementsystem\ticket_service\entity\TicketType.class
 com\eventmanagementsystem\ticket_service\service\TicketTypeService.class
 com\eventmanagementsystem\ticket_service\repository\TicketTypeRepository.class

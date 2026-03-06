@@ -17,6 +17,7 @@ export default function TicketsPage({ data, setData, addToast, openModal, closeM
         addToast("Failed to load tickets from server. Showing local data.", "error");
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const tickets = data.tickets.filter(t =>
