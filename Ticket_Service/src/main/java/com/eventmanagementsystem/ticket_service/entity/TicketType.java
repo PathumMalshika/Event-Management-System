@@ -1,6 +1,6 @@
 package com.eventmanagementsystem.ticket_service.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ticket_types")
@@ -24,7 +24,6 @@ public class TicketType {
     @Column(nullable = false)
     private Long eventId;
 
-    // Constructors
     public TicketType() {}
 
     public TicketType(String name, String description, Double price, Integer quantity, Long eventId) {
@@ -35,7 +34,6 @@ public class TicketType {
         this.eventId = eventId;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -96,4 +94,3 @@ public class TicketType {
                 '}';
     }
 }
-
