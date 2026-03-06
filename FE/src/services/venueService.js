@@ -1,23 +1,12 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8081/api/venues";
+const API_URL = "http://localhost:8081/api/venues";
 
-export const getAllVenues = () => {
-  return axios.get(BASE_URL);
+const venueService = {
+  getAll: () => axios.get(API_URL).then(res => res.data),
+  add: (venue) => axios.post(API_URL, venue).then(res => res.data),
+  update: (id, venue) => axios.put(`${API_URL}/${id}`, venue).then(res => res.data),
+  remove: (id) => axios.delete(`${API_URL}/${id}`).then(res => res.data),
 };
 
-export const getVenueById = (id) => {
-  return axios.get(`${BASE_URL}/${id}`);
-};
-
-export const addVenue = (venue) => {
-  return axios.post(BASE_URL, venue);
-};
-
-export const updateVenue = (id, venue) => {
-  return axios.put(`${BASE_URL}/${id}`, venue);
-};
-
-export const deleteVenue = (id) => {
-  return axios.delete(`${BASE_URL}/${id}`);
-};
+export default venueService;

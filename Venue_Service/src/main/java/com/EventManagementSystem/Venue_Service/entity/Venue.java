@@ -4,13 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -25,16 +24,20 @@ public class Venue {
     @Size(max = 100)
     private String name;
 
-    @NotBlank(message = "Location cannot be blank")
-    @Size(max = 200)
-    private String location;
+    @NotBlank(message = "City cannot be blank")
+    @Size(max = 100)
+    private String city;
 
-    private int capacity;
+    private int capacity = 100;
 
-    @NotNull
-    private LocalDate date;
+    @NotBlank(message = "Type cannot be blank")
+    private String type;
 
-    private boolean isAvailable;
+    @NotBlank(message = "Status cannot be blank")
+    private String status;
+
+    @Email(message = "Invalid email")
+    private String contact;
 
     public Venue() {}
 }

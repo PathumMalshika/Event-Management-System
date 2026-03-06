@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/venues")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:3000")
 public class VenueController {
 
     @Autowired
@@ -38,8 +38,19 @@ public class VenueController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateVenue(@PathVariable Long id, @RequestBody Venue venue) {
-        venueService.updateVenue(id, venue);
-        return new ResponseEntity<>("Venue updated successfully", HttpStatus.OK);
+        Venue existing = venueService.getVenueById(id);
+        if (existing != null) {
+            existing.setName(venue.getName());
+            existing.setCity(venue.getCity());
+            existing.setCapacity(venue.getCapacity());
+            existing.setType(venue.getType());
+            existing.setStatus(venue.getStatus());
+            existing.setContact(venue.getContact());
+            venueService.addVenue(existing); // reuse addVenue for saving
+            return new ResponseEntity<>("Venue updated successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Venue not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
