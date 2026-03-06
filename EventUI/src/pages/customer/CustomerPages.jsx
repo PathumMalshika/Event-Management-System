@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { SvcHeader, ConfirmDialog } from "../../components/common/SvcHeader";
 import { statusBadge, Stars } from "../../utils/helpers";
-import Icons from "../../utils/icons";
-
+import Icons from "../../utils/icons";import * as notifService from "../../services/notificationService";
 /* ── MY BOOKINGS ─────────────────────────────────────────── */
 export function MyBookingsPage({ data, setData, addToast, openModal, closeModal, authUser }) {
   const MY = authUser.name;
@@ -249,17 +248,33 @@ export function MyFeedbackPage({ data, setData, addToast, openModal, closeModal,
 }
 
 /* ── MY NOTIFICATIONS ────────────────────────────────────── */
-export function MyNotificationsPage({ data, setData }) {
+export function MyNotificationsPage({ data, setData, authUser, addToast }) {
   const [filter, setFilter] = useState("All");
-  const notifs = data.notifications.filter(n =>
-    filter === "All" || (filter === "Unread" && !n.read) || (filter === "Read" && n.read)
+  const [loading, setLoading] = useState(false);
+
+  const notifs = (data?.notifications || []).filter(n =>
+    (filter === "All" || (filter === "Unread" && !n.read) || (filter === "Read" && n.read)) &&
+    (n?.message || "").toLowerCase().includes("")
   );
+
+  const markAsRead = async (id) => {
+    try {
+      setLoading(true);
+      await notifService.markAsRead(id);
+      setData(d => ({ ...d, notifications: d.notifications.map(x => x.id === id ? { ...x, read: true } : x) }));
+    } catch (error) {
+      addToast("Failed to mark as read", "error");
+      console.error("Error marking notification as read:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <SvcHeader
         eyebrow="My Account" title="Notifications" sub="Stay up to date with your bookings, events and offers."
-        action={data.notifications.some(n => !n.read) && (
+        action={(data?.notifications || []).some(n => !n.read) && (
           <button className="btn btn-ghost" onClick={() => setData(d => ({ ...d, notifications: d.notifications.map(n => ({ ...n, read: true })) }))}>
             Mark All Read
           </button>
@@ -268,9 +283,9 @@ export function MyNotificationsPage({ data, setData }) {
 
       <div className="stats-row" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
         {[
-          ["🔔", "Total",  data.notifications.length],
-          ["🔴", "Unread", data.notifications.filter(n => !n.read).length],
-          ["✅", "Read",   data.notifications.filter(n => n.read).length],
+          ["🔔", "Total",  (data?.notifications || []).length],
+          ["🔴", "Unread", (data?.notifications || []).filter(n => !n.read).length],
+          ["✅", "Read",   (data?.notifications || []).filter(n => n.read).length],
         ].map(([ico, lbl, val]) => (
           <div key={lbl} className="stat-tile">
             <div className="st-icon">{ico}</div><div className="st-val">{val}</div><div className="st-lbl">{lbl}</div>
@@ -287,7 +302,9 @@ export function MyNotificationsPage({ data, setData }) {
             ))}
           </div>
         </div>
-        {notifs.length === 0 ? (
+        {loading ? (
+          <div className="empty-state"><div className="empty-lbl">Loading…</div></div>
+        ) : notifs.length === 0 ? (
           <div className="empty-state"><div className="empty-ico">🔔</div><div className="empty-title">No notifications</div></div>
         ) : (
           <div style={{ padding: "6px" }}>
@@ -295,12 +312,12 @@ export function MyNotificationsPage({ data, setData }) {
               <div key={n.id}
                 className={`np-item${n.read ? "" : " unread"}`}
                 style={{ marginBottom: 2, borderRadius: 10 }}
-                onClick={() => setData(d => ({ ...d, notifications: d.notifications.map(x => x.id === n.id ? { ...x, read: true } : x) }))}>
-                <div className="np-ico" style={{ background: n.iconBg }}>{n.icon}</div>
+                onClick={() => markAsRead(n.id)}>
+                <div className="np-ico">🔔</div>
                 <div className="np-info">
-                  <div className="np-name">{n.title}</div>
-                  <div className="np-body">{n.body}</div>
-                  <div className="np-time">{!n.read && <span className="unread-pip" />}{n.time}</div>
+                  <div className="np-name">Notification</div>
+                  <div className="np-body">{n.message || ""}</div>
+                  <div className="np-time">{!n.read && <span className="unread-pip" />}{n.createdAt ? new Date(n.createdAt).toLocaleString() : "Just now"}</div>
                 </div>
                 <button className="btn-icon del"
                   onClick={e => { e.stopPropagation(); setData(d => ({ ...d, notifications: d.notifications.filter(x => x.id !== n.id) })); }}>

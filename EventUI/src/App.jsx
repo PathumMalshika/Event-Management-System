@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 // Styles & data
 import styles      from "./styles/global.js";
@@ -36,6 +36,9 @@ import {
   MyProfilePage,
 } from "./pages/customer/CustomerPages.jsx";
 
+// API services
+import * as notifService from "./services/notificationService.js";
+
 export default function App() {
   const [authUser,          setAuthUser] = useState(null);
   const [page,              setPage]     = useState("dashboard");
@@ -46,6 +49,35 @@ export default function App() {
   const [toasts,            setToasts]   = useState([]);
   const [modal,             setModal]    = useState(null);
   const [searchQ,           setSearchQ]  = useState("");
+
+  // ── Fetch notifications on app load ───────────────────────
+  useEffect(() => {
+    if (authUser) {
+      fetchNotifications();
+    }
+  }, [authUser]);
+
+  const fetchNotifications = async () => {
+    try {
+      let notifications = [];
+      if (authUser?.role === "ADMIN") {
+        // Admin sees all notifications
+        const response = await notifService.getNotifications();
+        notifications = response.data;
+      } else if (authUser?.name) {
+        // Customer sees only their notifications - map name to ID
+        const user = INIT_DATA.users.find(u => u.name === authUser.name);
+        if (user?.id) {
+          const response = await notifService.getNotificationsByUser(user.id);
+          notifications = response.data;
+        }
+      }
+      setData(d => ({ ...d, notifications }));
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      // Keep mock data as fallback
+    }
+  };
 
   // ── Toast helper ──────────────────────────────────────────
   const addToast = useCallback((msg, type = "success") => {
