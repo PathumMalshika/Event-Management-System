@@ -14,6 +14,7 @@ Add, view, update, and delete venues with details like name, location, capacity,
 1. Clone the repo.
 2. Configure `application.yml` with your MySQL credentials:
 
+<img width="1103" height="518" alt="image" src="https://github.com/user-attachments/assets/abca9b53-0c66-4851-a427-1e18d4a8ca31" />
 
- <img width="1294" height="597" alt="image" src="https://github.com/user-attachments/assets/56fc9117-d362-4a57-9642-5e5165ca12a8" />
+
 
