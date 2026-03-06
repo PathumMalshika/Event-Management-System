@@ -1,28 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SvcHeader } from "../../components/common/SvcHeader";
 import Icons from "../../utils/icons";
-import { uid } from "../../data/mockData";
+import * as notifService from "../../services/notificationService";
 
 export default function NotificationsPage({ data, setData, addToast, openModal, closeModal, searchQ }) {
   const [filter, setFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
-  const notifs = data.notifications.filter(n =>
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await notifService.getNotifications();
+      setData(d => ({ ...d, notifications: response.data }));
+    } catch (error) {
+      addToast("Failed to load notifications", "error");
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const notifs = (data?.notifications || []).filter(n =>
     (filter === "All" || (filter === "Unread" && !n.read) || (filter === "Read" && n.read)) &&
-    n.title.toLowerCase().includes(searchQ.toLowerCase())
+    (n?.message || "").toLowerCase().includes(searchQ.toLowerCase())
   );
 
-  const deleteNotif = (id) => {
-    setData(d => ({ ...d, notifications: d.notifications.filter(n => n.id !== id) }));
-    addToast("Notification deleted.", "info");
+  const deleteNotif = async (id) => {
+    try {
+      await notifService.deleteNotification(id);
+      setData(d => ({ ...d, notifications: d.notifications.filter(n => n.id !== id) }));
+      addToast("Notification deleted.", "info");
+    } catch (error) {
+      addToast("Failed to delete notification", "error");
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  const markAsReadHandler = async (id) => {
+    try {
+      await notifService.markAsRead(id);
+      setData(d => ({ ...d, notifications: d.notifications.map(x => x.id === id ? { ...x, read: true } : x) }));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   const openForm = () => {
-    let form = { title: "", body: "", type: "system", icon: "📢", iconBg: "rgba(91,142,245,.15)", iconColor: "#5b8ef5", read: false };
-    const save = () => {
-      if (!form.title || !form.body) { addToast("Title and message required.", "error"); return; }
-      setData(d => ({ ...d, notifications: [{ ...form, id: uid(), time: "Just now" }, ...d.notifications] }));
-      addToast("Notification created.");
-      closeModal();
+    let form = { message: "", userId: 1 };
+    const save = async () => {
+      if (!form.message) { addToast("Message required.", "error"); return; }
+      try {
+        const response = await notifService.createNotification(form);
+        setData(d => ({ ...d, notifications: [response.data, ...d.notifications] }));
+        addToast("Notification created.");
+        closeModal();
+      } catch (error) {
+        addToast("Failed to create notification", "error");
+        console.error("Error creating notification:", error);
+      }
     };
 
     openModal({
@@ -34,15 +73,8 @@ export default function NotificationsPage({ data, setData, addToast, openModal, 
           </div>
           <div className="modal-body">
             <div className="form-grid">
-              <div className="fg full"><label className="fl">Title</label><input className="fi" onChange={e => form.title = e.target.value} placeholder="Notification title" /></div>
-              <div className="fg full"><label className="fl">Message</label><textarea className="fta" onChange={e => form.body = e.target.value} placeholder="Notification body message…" /></div>
-              <div className="fg">
-                <label className="fl">Type</label>
-                <select className="fs" onChange={e => form.type = e.target.value}>
-                  {["system", "booking", "reminder", "promo", "payment", "feedback"].map(t => <option key={t}>{t}</option>)}
-                </select>
-              </div>
-              <div className="fg"><label className="fl">Icon</label><input className="fi" defaultValue={form.icon} onChange={e => form.icon = e.target.value} placeholder="📢" /></div>
+              <div className="fg full"><label className="fl">User ID</label><input className="fi" type="number" defaultValue="1" onChange={e => form.userId = parseInt(e.target.value)} placeholder="Recipient user ID" /></div>
+              <div className="fg full"><label className="fl">Message</label><textarea className="fta" onChange={e => form.message = e.target.value} placeholder="Notification message…" /></div>
             </div>
           </div>
           <div className="modal-foot">
@@ -70,10 +102,10 @@ export default function NotificationsPage({ data, setData, addToast, openModal, 
 
       <div className="stats-row">
         {[
-          ["🔔", "Total",  data.notifications.length],
-          ["🔴", "Unread", data.notifications.filter(n => !n.read).length],
-          ["✅", "Read",   data.notifications.filter(n => n.read).length],
-          ["📢", "Types",  new Set(data.notifications.map(n => n.type)).size],
+          ["🔔", "Total",  (data?.notifications || []).length],
+          ["🔴", "Unread", (data?.notifications || []).filter(n => !n.read).length],
+          ["✅", "Read",   (data?.notifications || []).filter(n => n.read).length],
+          ["📢", "Users",  new Set((data?.notifications || []).map(n => n.userId)).size],
         ].map(([ico, lbl, val]) => (
           <div key={lbl} className="stat-tile">
             <div className="st-icon">{ico}</div><div className="st-val">{val}</div><div className="st-lbl">{lbl}</div>
@@ -91,23 +123,24 @@ export default function NotificationsPage({ data, setData, addToast, openModal, 
           </div>
         </div>
         <div style={{ padding: "6px" }}>
-          {notifs.length === 0
+          {loading
+            ? <div className="empty-state"><div className="empty-lbl">Loading notifications…</div></div>
+            : notifs.length === 0
             ? <div className="empty-state"><div className="empty-ico">🔔</div><div className="empty-title">No notifications</div></div>
             : notifs.map(n => (
               <div
                 key={n.id}
                 className={`np-item${n.read ? "" : " unread"}`}
                 style={{ marginBottom: 2 }}
-                onClick={() => setData(d => ({ ...d, notifications: d.notifications.map(x => x.id === n.id ? { ...x, read: true } : x) }))}
+                onClick={() => markAsReadHandler(n.id)}
               >
-                <div className="np-ico" style={{ background: n.iconBg }}>{n.icon}</div>
+                <div className="np-ico">🔔</div>
                 <div className="np-info">
-                  <div className="np-name">{n.title}</div>
-                  <div className="np-body">{n.body}</div>
+                  <div className="np-name">User {n.userId}</div>
+                  <div className="np-body">{n.message}</div>
                   <div className="np-time" style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     {!n.read && <span className="unread-pip" />}
-                    <span>{n.time}</span>
-                    <span className="badge b-gray" style={{ fontSize: ".6rem" }}>{n.type}</span>
+                    <span>{new Date(n.createdAt).toLocaleString()}</span>
                   </div>
                 </div>
                 <button className="btn-icon del" onClick={e => { e.stopPropagation(); deleteNotif(n.id); }}>{Icons.trash}</button>

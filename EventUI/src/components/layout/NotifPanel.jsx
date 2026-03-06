@@ -1,14 +1,27 @@
 import Icons from "../../utils/icons";
+import * as notifService from "../../services/notificationService";
 
 export default function NotifPanel({ open, onClose, notifications, setData, addToast, notifTab, setNT }) {
   const markAllRead = () =>
     setData(d => ({ ...d, notifications: d.notifications.map(n => ({ ...n, read: true })) }));
 
-  const markOneRead = (id) =>
-    setData(d => ({ ...d, notifications: d.notifications.map(n => n.id === id ? { ...n, read: true } : n) }));
+  const markOneRead = async (id) => {
+    try {
+      await notifService.markAsRead(id);
+      setData(d => ({ ...d, notifications: d.notifications.map(n => n.id === id ? { ...n, read: true } : n) }));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
 
-  const deleteOne = (id) =>
-    setData(d => ({ ...d, notifications: d.notifications.filter(n => n.id !== id) }));
+  const deleteOne = async (id) => {
+    try {
+      await notifService.deleteNotification(id);
+      setData(d => ({ ...d, notifications: d.notifications.filter(n => n.id !== id) }));
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
 
   const unread = notifications.filter(n => !n.read).length;
   const visible = notifTab === "all" ? notifications : notifications.filter(n => !n.read);
@@ -46,13 +59,13 @@ export default function NotifPanel({ open, onClose, notifications, setData, addT
               className={`np-item${n.read ? "" : " unread"}`}
               onClick={() => markOneRead(n.id)}
             >
-              <div className="np-ico" style={{ background: n.iconBg }}>{n.icon}</div>
+              <div className="np-ico">{n.icon || "🔔"}</div>
               <div className="np-info">
-                <div className="np-name">{n.title}</div>
-                <div className="np-body">{n.body}</div>
+                <div className="np-name">{n.userId ? `User ${n.userId}` : n.title || "Notification"}</div>
+                <div className="np-body">{n.message || n.body || ""}</div>
                 <div className="np-time">
                   {!n.read && <span className="unread-pip" />}
-                  {n.time}
+                  {n.createdAt ? new Date(n.createdAt).toLocaleString() : n.time || "Just now"}
                 </div>
               </div>
               <button
