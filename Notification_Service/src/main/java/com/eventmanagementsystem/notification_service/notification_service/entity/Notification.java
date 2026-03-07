@@ -17,16 +17,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment
 
-    private Long id;
+    private Long id; // unique identifier for each notification
 
-    private Long userId;
-    private String message;
+    private Long userId; // ID of the user the notification belongs to
+    private String message; // notification content
 
-    private Boolean read;
+    private Boolean read; // whether the notification has been viewed
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // timestamp when notification was created
 
 }
