@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #222230;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #f0f0f8;
+    --muted: #7070a0;
+    --card-glow: rgba(108, 99, 255, 0.08);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 10%, rgba(108,99,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 90% 80%, rgba(255,101,132,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Layout */
+  .shell {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: rgba(108,99,255,0.12);
+    color: var(--accent);
+    border-color: rgba(108,99,255,0.2);
+  }
+
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .base-url-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  .base-url-chip span { color: var(--accent3); font-weight: 600; }
+
+  /* Main */
+  .main {
+    flex: 1;
+    padding: 36px 40px;
+    overflow-y: auto;
+  }
+
+  /* Header */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .page-title {
+    font-family: var(--font-head);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .page-title span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .page-sub { color: var(--muted); font-size: 14px; margin-top: 6px; font-weight: 300; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .stat-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-2px); }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .stat-card:hover::after { opacity: 1; }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: var(--font-head);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+    transition: all 0.4s;
+  }
+
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--accent3);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Action bar */
+  .action-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.5s 0.15s ease both;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within { border-color: var(--accent); }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    width: 100%;
+    font-weight: 300;
+  }
+
+  .search-box input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(108,99,255,0.4); }
+
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: rgba(108,99,255,0.3); }
+
+  .btn-danger {
+    background: rgba(255,101,132,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(255,101,132,0.2);
+  }
+
+  .btn-danger:hover { background: rgba(255,101,132,0.2); }
+
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+  /* Table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .table-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-head-title {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card-glow); }
+
+  tbody td {
+    padding: 14px 20px;
+    font-size: 13.5px;
+    vertical-align: middle;
+    color: var(--text);
+    max-width: 280px;
+  }
+
+  .td-id {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid var(--border);
+  }
+
+  .td-comment {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .rating-stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .star { color: var(--muted); font-size: 14px; }
+  .star.on { color: #fbbf24; }
+
+  .user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .td-actions { display: flex; gap: 6px; align-items: center; }
+
+  /* Empty state */
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; font-weight: 300; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    padding: 32px;
+    animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    position: relative;
+  }
+
+  .modal-title {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; font-weight: 300; }
+
+  .field { margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--accent);
+  }
+
+  .field select option { background: var(--surface2); }
+
+  .star-picker {
+    display: flex; gap: 6px;
+  }
+
+  .star-picker .sp-star {
+    font-size: 26px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: color 0.15s, transform 0.15s;
+    user-select: none;
+  }
+
+  .star-picker .sp-star:hover,
+  .star-picker .sp-star.active { color: #fbbf24; transform: scale(1.2); }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 16px;
+    transition: color 0.2s;
+  }
+
+  .close-btn:hover { color: var(--text); }
+
+  /* Toast */
+  .toast-container {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideRight 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .toast.success .toast-dot { background: var(--accent3); }
+  .toast.error .toast-dot { background: var(--accent2); }
+  .toast.info .toast-dot { background: var(--accent); }
+
+  .toast-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(108,99,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .loading-row td {
+    padding: 40px 0;
+    text-align: center;
+  }
+
+  .loading-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* User filter section */
+  .user-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 14px;
+  }
+
+  .user-filter-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    width: 120px;
+    font-weight: 300;
+  }
+
+  .user-filter-bar input::placeholder { color: var(--muted); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 200px; padding: 20px 14px; }
+    .main { padding: 24px 20px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 16px; }
+    .stats-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">💬</div>
+      <div class="logo-text">FeedbackStudio</div>
+    </div>
+
+    <div class="nav-section-label" style="margin-bottom:10px">Navigation</div>
+    <div class="nav-item active" onclick="showView('all')">
+      <span class="icon">📋</span> All Feedback
+    </div>
+    <div class="nav-item" onclick="showView('user')">
+      <span class="icon">👤</span> By User
+    </div>
+    <div class="nav-item" onclick="openCreateModal()">
+      <span class="icon">✏️</span> New Feedback
+    </div>
+
+    <div class="sidebar-footer">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Base URL</div>
+      <div class="base-url-chip">
+        <span>POST</span> /feedback/create<br>
+        <span>GET</span>&nbsp; /feedback<br>
+        <span>GET</span>&nbsp; /feedback/{id}<br>
+        <span>PUT</span>&nbsp; /feedback/update<br>
+        <span>DEL</span>&nbsp; /feedback/{id}
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- All Feedback View -->
+    <div id="view-all">
+      <div class="page-header">
+        <div>
+          <div class="page-title">All <span>Feedback</span></div>
+          <div class="page-sub">Manage and review all submitted feedback entries</div>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <span>＋</span> New Feedback
+        </button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Entries</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-badge">↑ Live count</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Rating</div>
+          <div class="stat-value" id="stat-avg">—</div>
+          <div class="stat-badge">⭐ Out of 5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique Users</div>
+          <div class="stat-value" id="stat-users">—</div>
+          <div class="stat-badge">👥 Active</div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input id="search-input" type="text" placeholder="Search feedback..." oninput="filterTable()">
+        </div>
+        <button class="btn btn-ghost" onclick="loadAll()">↻ Refresh</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="table-head-title">Feedback Entries</div>
+          <div style="font-size:12px;color:var(--muted)" id="table-count"></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User ID</th>
+              <th>Rating</th>
+              <th>Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="feedback-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- By User View -->
+    <div id="view-user" style="display:none">
+      <div class="page-header">
+        <div>
+          <div class="page-title">By <span>User</span></div>
+          <div class="page-sub">Filter feedback by a specific user ID</div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="user-filter-bar">
+          <span style="color:var(--muted)">👤</span>
+          <input type="number" id="user-id-input" placeholder="User ID...">
+        </div>
+        <button class="btn btn-primary" onclick="loadByUser()">Search</button>
+        <button class="btn btn-ghost" onclick="showView('all')">← All</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="table-head-title">User Feedback</div>
+          <div style="font-size:12px;color:var(--muted)" id="user-table-count"></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User ID</th>
+              <th>Rating</th>
+              <th>Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-feedback-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title">New Feedback</div>
+    <div class="modal-sub" id="modal-sub">POST /feedback/create</div>
+
+    <div class="field">
+      <label>User ID</label>
+      <input type="number" id="f-userId" placeholder="e.g. 42">
+    </div>
+
+    <div class="field">
+      <label>Rating</label>
+      <div class="star-picker" id="star-picker">
+        <span class="sp-star" data-val="1">★</span>
+        <span class="sp-star" data-val="2">★</span>
+        <span class="sp-star" data-val="3">★</span>
+        <span class="sp-star" data-val="4">★</span>
+        <span class="sp-star" data-val="5">★</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Comment</label>
+      <textarea id="f-comment" rows="3" placeholder="Share your thoughts..."></textarea>
+    </div>
+
+    <input type="hidden" id="f-id">
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-submit-btn" onclick="submitFeedback()">
+        Create Feedback
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+  const BASE = 'http://localhost:8083/feedback';
+  let allFeedback = [];
+  let selectedRating = 0;
+  let editMode = false;
+
+  // ─── Init ───────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    loadAll();
+    setupStarPicker();
+  });
+
+  // ─── View toggle ────────────────────────────────────────
+  function showView(v) {
+    document.getElementById('view-all').style.display = v === 'all' ? 'block' : 'none';
+    document.getElementById('view-user').style.display = v === 'user' ? 'block' : 'none';
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (v === 'all') document.querySelectorAll('.nav-item')[0].classList.add('active');
+    if (v === 'user') document.querySelectorAll('.nav-item')[1].classList.add('active');
+  }
+
+  // ─── API Calls ──────────────────────────────────────────
+  async function api(method, path, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(BASE + path, opts);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  async function loadAll() {
+    setTableLoading('feedback-tbody');
+    try {
+      allFeedback = await api('GET', '');
+      renderTable('feedback-tbody', allFeedback);
+      updateStats(allFeedback);
+    } catch (e) {
+      toast('Failed to load feedback. Is the server running?', 'error');
+      setTableEmpty('feedback-tbody', 'Could not reach server');
+    }
+  }
+
+  async function loadByUser() {
+    const uid = document.getElementById('user-id-input').value.trim();
+    if (!uid) { toast('Enter a user ID first', 'info'); return; }
+    setTableLoading('user-feedback-tbody');
+    try {
+      const data = await api('GET', `/user/${uid}`);
+      renderTable('user-feedback-tbody', data, 'user-table-count');
+    } catch (e) {
+      toast(`Failed to fetch user ${uid} feedback`, 'error');
+      setTableEmpty('user-feedback-tbody', 'No feedback found');
+    }
+  }
+
+  async function deleteFeedback(id) {
+    if (!confirm(`Delete feedback #${id}?`)) return;
+    try {
+      await api('DELETE', `/${id}`);
+      toast(`Feedback #${id} deleted`, 'success');
+      loadAll();
+    } catch (e) {
+      toast('Delete failed', 'error');
+    }
+  }
+
+  async function submitFeedback() {
+    const userId = parseInt(document.getElementById('f-userId').value);
+    const comment = document.getElementById('f-comment').value.trim();
+    const rating = selectedRating;
+
+    if (!userId) { toast('User ID is required', 'info'); return; }
+    if (!rating) { toast('Please select a rating', 'info'); return; }
+
+    const btn = document.getElementById('modal-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Saving...';
+
+    try {
+      if (editMode) {
+        const id = parseInt(document.getElementById('f-id').value);
+        await api('PUT', '/update', { id, userId, comment, rating });
+        toast('Feedback updated ✓', 'success');
+      } else {
+        await api('POST', '/create', { userId, comment, rating });
+        toast('Feedback created ✓', 'success');
+      }
+      closeModal();
+      loadAll();
+    } catch (e) {
+      toast('Save failed — check your server', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = editMode ? 'Update Feedback' : 'Create Feedback';
+    }
+  }
+
+  // ─── Modal ──────────────────────────────────────────────
+  function openCreateModal() {
+    editMode = false;
+    document.getElementById('modal-title').textContent = 'New Feedback';
+    document.getElementById('modal-sub').textContent = 'POST /feedback/create';
+    document.getElementById('modal-submit-btn').textContent = 'Create Feedback';
+    document.getElementById('f-userId').value = '';
+    document.getElementById('f-comment').value = '';
+    document.getElementById('f-id').value = '';
+    setRating(0);
+    document.getElementById('modal').classList.add('open');
+    document.querySelectorAll('.nav-item')[2].classList.add('active');
+  }
+
+  function openEditModal(fb) {
+    editMode = true;
+    document.getElementById('modal-title').textContent = `Edit Feedback #${fb.id}`;
+    document.getElementById('modal-sub').textContent = 'PUT /feedback/update';
+    document.getElementById('modal-submit-btn').textContent = 'Update Feedback';
+    document.getElementById('f-id').value = fb.id;
+    document.getElementById('f-userId').value = fb.userId;
+    document.getElementById('f-comment').value = fb.comment || '';
+    setRating(fb.rating || 0);
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.querySelectorAll('.nav-item').forEach((el, i) => {
+      if (i === 2) el.classList.remove('active');
+    });
+  }
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ─── Star picker ─────────────────────────────────────────
+  function setupStarPicker() {
+    document.querySelectorAll('.sp-star').forEach(star => {
+      star.addEventListener('click', () => setRating(parseInt(star.dataset.val)));
+      star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.val)));
+      star.addEventListener('mouseout', () => highlightStars(selectedRating));
+    });
+  }
+
+  function setRating(val) {
+    selectedRating = val;
+    highlightStars(val);
+  }
+
+  function highlightStars(val) {
+    document.querySelectorAll('.sp-star').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    });
+  }
+
+  // ─── Render ──────────────────────────────────────────────
+  function renderTable(tbodyId, data, countId) {
+    const tbody = document.getElementById(tbodyId);
+    const ci = countId || 'table-count';
+
+    if (!data || data.length === 0) {
+      setTableEmpty(tbodyId);
+      document.getElementById(ci).textContent = '0 entries';
+      updateStats(data || []);
+      return;
+    }
+
+    document.getElementById(ci).textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'}`;
+
+    tbody.innerHTML = data.map((fb, i) => `
+      <tr style="animation-delay:${i * 0.04}s">
+        <td><span class="td-id">#${fb.id ?? '—'}</span></td>
+        <td><span class="user-chip">👤 ${fb.userId ?? '—'}</span></td>
+        <td><div class="rating-stars">${renderStars(fb.rating)}</div></td>
+        <td><div class="td-comment" title="${escape(fb.comment || '')}">${fb.comment || '<span style="color:var(--muted);font-style:italic">No comment</span>'}</div></td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-ghost btn-sm" onclick='openEditModal(${JSON.stringify(fb)})'>✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteFeedback(${fb.id})">🗑 Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderStars(rating) {
+    return Array.from({length: 5}, (_, i) =>
+      `<span class="star ${i < (rating || 0) ? 'on' : ''}">★</span>`
+    ).join('');
+  }
+
+  function setTableLoading(tbodyId) {
+    document.getElementById(tbodyId).innerHTML = `
+      <tr class="loading-row">
+        <td colspan="5"><div class="loading-inner"><div class="spinner"></div> Loading...</div></td>
+      </tr>`;
+  }
+
+  function setTableEmpty(tbodyId, msg = 'No feedback entries found') {
+    document.getElementById(tbodyId).innerHTML = `
+      <tr><td colspan="5">
+        <div class="empty-state">
+          <div class="icon">💭</div>
+          <p>${msg}</p>
+        </div>
+      </td></tr>`;
+  }
+
+  function updateStats(data) {
+    const total = data.length;
+    const avg = total > 0 ? (data.reduce((s, f) => s + (f.rating || 0), 0) / total).toFixed(1) : '—';
+    const users = new Set(data.map(f => f.userId)).size;
+    animateCount('stat-total', total);
+    document.getElementById('stat-avg').textContent = avg;
+    animateCount('stat-users', users);
+  }
+
+  function animateCount(id, target) {
+    const el = document.getElementById(id);
+    let start = 0;
+    const step = Math.ceil(target / 20);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = start;
+      if (start >= target) clearInterval(timer);
+    }, 30);
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allFeedback.filter(fb =>
+      String(fb.id).includes(q) ||
+      String(fb.userId).includes(q) ||
+      (fb.comment || '').toLowerCase().includes(q)
+    );
+    renderTable('feedback-tbody', filtered);
+  }
+
+  // ─── Toast ───────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const c = document.getElementById('toasts');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-dot"></span>${msg}`;
+    c.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(24px)';
+      el.style.transition = 'all 0.3s';
+      setTimeout(() => el.remove(), 300);
+    }, 3000);
+  }
+
+  function escape(str) {
+    return str.replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+</script>
+</body>
+</html>

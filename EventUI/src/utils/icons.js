@@ -1,0 +1,27 @@
+const Icons = {
+  dashboard:  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>,
+  users:      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="8" cy="6" r="3"/><path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="15" cy="7" r="2.5"/><path d="M18 17c0-2.5-1.3-4.6-3-5.6"/></svg>,
+  events:     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="4" width="16" height="14" rx="2"/><path d="M14 2v4M6 2v4M2 9h16"/></svg>,
+  venues:     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 2C7 2 4.5 4.5 4.5 7.5c0 4.5 5.5 10.5 5.5 10.5s5.5-6 5.5-10.5C15.5 4.5 13 2 10 2z"/><circle cx="10" cy="7.5" r="2"/></svg>,
+  tickets:    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 8a2 2 0 0 1 0-4V2h16v2a2 2 0 0 1 0 4v.5a2 2 0 0 1 0 4V18H2v-3.5a2 2 0 0 1 0-4V8z"/><line x1="7" y1="2" x2="7" y2="18" strokeDasharray="2 3"/></svg>,
+  bookings:   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 4h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M6 9h8M6 13h5"/></svg>,
+  payments:   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 9h16M6 13h4"/></svg>,
+  categories: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="5" cy="5" r="3"/><circle cx="15" cy="5" r="3"/><circle cx="5" cy="15" r="3"/><circle cx="15" cy="15" r="3"/></svg>,
+  notifs:     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 8A5 5 0 0 0 5 8c0 5.5-2.5 7-2.5 7h15S15 13.5 15 8z"/><path d="M11.4 17a1.7 1.7 0 0 1-2.8 0"/></svg>,
+  feedback:   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H7l-4 3V5a1 1 0 0 1 1-1z"/></svg>,
+  checkin:    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="10" cy="10" r="8"/><path d="M7 10l2 2 4-4"/></svg>,
+  plus:       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3v10M3 8h10"/></svg>,
+  edit:       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 2l3 3-8 8H3v-3l8-8z"/></svg>,
+  trash:      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4h10M6 4V2h4v2M5 4v9a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4"/></svg>,
+  eye:        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><ellipse cx="8" cy="8" rx="6" ry="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>,
+  search:     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>,
+  bell:       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 8A5 5 0 0 0 5 8c0 5.5-2.5 7-2.5 7h15S15 13.5 15 8z"/><path d="M11.4 17a1.7 1.7 0 0 1-2.8 0"/></svg>,
+  menu:       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 5h14M2 9h14M2 13h14"/></svg>,
+  close:      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3l10 10M13 3L3 13"/></svg>,
+  chevron:    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 4.5L6 7.5 3 4.5"/></svg>,
+  qr:         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="12" y="2" width="6" height="6" rx="1"/><rect x="2" y="12" width="6" height="6" rx="1"/><rect x="12" y="12" width="3" height="3"/><rect x="17" y="12" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="15" y="15" width="3" height="3"/></svg>,
+  download:   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 2v8M5 7l3 3 3-3M2 13h12"/></svg>,
+  logout:     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 8H3M6 5l-3 3 3 3M10 3h4v10h-4"/></svg>,
+};
+
+export default Icons;
