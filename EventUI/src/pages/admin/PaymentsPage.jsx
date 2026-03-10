@@ -1,27 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SvcHeader, ConfirmDialog } from "../../components/common/SvcHeader";
-import { statusBadge } from "../../utils/helpers";
 import Icons from "../../utils/icons";
-import { uid } from "../../data/mockData";
+import { statusBadge } from "../../utils/helpers";
+import {
+  getAllPayments,
+  processPayment,
+  updatePayment,
+  deletePayment as deletePaymentAPI,
+} from "../../services/paymentService";
 
 export default function PaymentsPage({ data, setData, addToast, openModal, closeModal, searchQ }) {
   const [filter, setFilter] = useState("All");
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const payments = data.payments.filter(p =>
+  // Fetch payments on component mount
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllPayments();
+      setPayments(response || []);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch payments");
+      addToast("Error fetching payments", "error");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPayments = payments.filter(p =>
     (filter === "All" || p.status === filter) &&
-    (p.user.toLowerCase().includes(searchQ.toLowerCase()) ||
-     p.id.toLowerCase().includes(searchQ.toLowerCase()))
+    (p.user?.toLowerCase().includes(searchQ.toLowerCase()) ||
+     p.id?.toLowerCase().includes(searchQ.toLowerCase()))
   );
 
-  const updateStatus = (id, status) => {
-    setData(d => ({ ...d, payments: d.payments.map(p => p.id === id ? { ...p, status } : p) }));
-    addToast(`Payment marked as ${status}.`);
+  const updateStatus = async (id, status) => {
+    try {
+      await updatePayment(id, { status });
+      setPayments(prev =>
+        prev.map(p => p.id === id ? { ...p, status } : p)
+      );
+      addToast(`Payment marked as ${status}.`);
+    } catch (err) {
+      addToast("Error updating payment", "error");
+      console.error(err);
+    }
   };
 
   const deletePayment = (id) => openModal({
     content: (
       <ConfirmDialog title="Delete Payment" body="Remove this failed/refunded payment record?" icon="💳"
-        onConfirm={() => { setData(d => ({ ...d, payments: d.payments.filter(p => p.id !== id) })); addToast("Payment deleted.", "info"); closeModal(); }}
+        onConfirm={async () => {
+          try {
+            await deletePaymentAPI(id);
+            setPayments(prev => prev.filter(p => p.id !== id));
+            addToast("Payment deleted.", "info");
+            closeModal();
+          } catch (err) {
+            addToast("Error deleting payment", "error");
+            console.error(err);
+          }
+        }}
         onCancel={closeModal}
       />
     ),
@@ -29,12 +75,21 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
 
   const openForm = () => {
     let form = { booking: "", user: "", amount: 0, method: "Card", status: "pending" };
-    const save = () => {
+    const save = async () => {
       if (!form.booking || !form.user) { addToast("Booking and user required.", "error"); return; }
-      const id = "PAY-" + String(uid()).padStart(3, "0");
-      setData(d => ({ ...d, payments: [{ ...form, id, date: "Mar 2026" }, ...d.payments] }));
-      addToast("Payment created.");
-      closeModal();
+      try {
+        const paymentData = {
+          ...form,
+          date: new Date().toLocaleString(),
+        };
+        const response = await processPayment(paymentData);
+        setPayments(prev => [response, ...prev]);
+        addToast("Payment created.");
+        closeModal();
+      } catch (err) {
+        addToast("Error creating payment", "error");
+        console.error(err);
+      }
     };
 
     openModal({
@@ -50,11 +105,11 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
                 <label className="fl">Booking ID</label>
                 <select className="fs" onChange={e => {
                   form.booking = e.target.value;
-                  const b = data.bookings.find(b => b.id === e.target.value);
+                  const b = data?.bookings?.find(b => b.id === e.target.value);
                   if (b) { form.user = b.user; form.amount = b.total; }
                 }}>
                   <option value="">Select booking</option>
-                  {data.bookings.map(b => <option key={b.id}>{b.id}</option>)}
+                  {data?.bookings?.map(b => <option key={b.id}>{b.id}</option>)}
                 </select>
               </div>
               <div className="fg"><label className="fl">Amount (Rs)</label><input className="fi" type="number" defaultValue={0} onChange={e => form.amount = Number(e.target.value)} /></div>
@@ -82,7 +137,29 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
     });
   };
 
-  const totalRevenue = data.payments.filter(p => p.status === "completed").reduce((s, p) => s + p.amount, 0);
+  const totalRevenue = payments.filter(p => p.status === "completed").reduce((s, p) => s + p.amount, 0);
+
+  if (loading) {
+    return (
+      <>
+        <SvcHeader
+          eyebrow="Payment Service" title="Payments" sub="Track payments, refunds and transaction history."
+        />
+        <div style={{ textAlign: "center", padding: "2rem" }}>Loading payments...</div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <SvcHeader
+          eyebrow="Payment Service" title="Payments" sub="Track payments, refunds and transaction history."
+        />
+        <div style={{ textAlign: "center", padding: "2rem", color: "var(--red)" }}>{error}</div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -94,9 +171,9 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
       <div className="stats-row">
         {[
           ["💰", "Total Revenue", "Rs " + totalRevenue.toLocaleString()],
-          ["✅", "Completed",     data.payments.filter(p => p.status === "completed").length],
-          ["⏳", "Pending",       data.payments.filter(p => p.status === "pending").length],
-          ["↩️", "Refunded",      data.payments.filter(p => p.status === "refunded").length],
+          ["✅", "Completed",     payments.filter(p => p.status === "completed").length],
+          ["⏳", "Pending",       payments.filter(p => p.status === "pending").length],
+          ["↩️", "Refunded",      payments.filter(p => p.status === "refunded").length],
         ].map(([ico, lbl, val]) => (
           <div key={lbl} className="stat-tile">
             <div className="st-icon">{ico}</div>
@@ -108,7 +185,7 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
 
       <div className="card">
         <div className="card-head">
-          <span className="card-head-title">Transaction History ({payments.length})</span>
+          <span className="card-head-title">Transaction History ({filteredPayments.length})</span>
           <div className="filter-bar" style={{ margin: 0 }}>
             {["All", "completed", "pending", "refunded"].map(f => (
               <span key={f} className={`chip${filter === f ? " active" : ""}`} onClick={() => setFilter(f)}>
@@ -121,7 +198,7 @@ export default function PaymentsPage({ data, setData, addToast, openModal, close
           <table className="tbl">
             <thead><tr><th>Payment ID</th><th>Booking</th><th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
-              {payments.map(p => (
+              {filteredPayments.map(p => (
                 <tr key={p.id}>
                   <td style={{ fontFamily: "monospace", color: "var(--tx2)", fontSize: ".78rem" }}>{p.id}</td>
                   <td style={{ fontFamily: "monospace", color: "var(--tx2)", fontSize: ".78rem" }}>{p.booking}</td>
